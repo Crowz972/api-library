@@ -11,16 +11,18 @@ export class BookService {
     });
   }
 
-  // Récupère un auteur par ID
-  public async getBookById(id: number): Promise<Book> {
-    const book = await Book.findByPk(id);
-    return new Promise((resolve, reject) => {
-      if (book) {
-        resolve(book)
-      }
-      reject(book)
-    })
+  // Récupère un book par ID
+  public async getBookById(id: number): Promise<Book | null> {
+    return Book.findByPk(id);
   }
+
+  // Crée un nouvel book
+  public async createBook(
+    title: string, publish_year: number, author_id: number, isbn: string, 
+  ): Promise<Book> {
+    return Book.create({ title: title, publish_year: publish_year, author_id: author_id, isbn: isbn });
+  }
+
 }
 
 

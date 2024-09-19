@@ -4,6 +4,8 @@ export interface BookDTO {
   id?: number;
   title: string;
   publish_year: number;
-  author?: AuthorDTO;
   isbn: string;
+  author_id: number;
+  author?: AuthorDTO;
 }
+
