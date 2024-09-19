@@ -31,8 +31,8 @@ Permet d'être lancé sans compilation et de relancer dynamiquement l'applicatio
 
 ## Exercice
 
-1) Identifier et corriger l'erreur de la route POST authors
-2) Renvoyer une erreur personnalisée avec un code 404 si l'auteur n'est pas trouvée lors des routes PATCH et GET/{id}
+1) Identifier et corriger l'erreur de la route POST authors X
+2) Renvoyer une erreur personnalisée avec un code 404 si l'auteur n'est pas trouvée lors des routes PATCH et GET/{id} X
 3) 
     1) Développer la route GET /books
     2) Développer la route GET /books/{id}
