@@ -3,6 +3,7 @@ import { BookDTO } from "../dto/book.dto";
 import { bookService } from "../services/book.service";
 import { AuthorDTO } from "../dto/author.dto";
 import { authorService } from "../services/author.service";
+import { BookCollectionService } from "../services/bookCollection.service";
 
 @Route("books")
 @Tags("Books")
@@ -40,21 +41,47 @@ export class BookController extends Controller {
     return bookService.createBook(title, publish_year, author_id, isbn);
   }
 
-  // Met à jour un auteur par ID
-  @Patch("{id}")
-  public async updateBook(
-    @Path() id: number,
-    @Body() requestBody: BookDTO
-  ): Promise<BookDTO | null> {
-    const { } = requestBody;
-    const author = await authorService.updateAuthor(id, first_name, last_name);
-    if (!author) {
-      const error = new Error('Author not found');
-      (error as any).status = 404;
+  // // Met à jour un livre par ID
+  // @Patch("{id}")
+  // public async updateBook(
+  //   @Path() id: number,
+  //   @Body() requestBody: BookDTO
+  // ): Promise<BookDTO | null> {
+  //   const existingBook = await bookService.getBookById(id);
+
+  //   if (!existingBook) {
+  //     const error = new Error('Book not found');
+  //     (error as any).status = 404;
+  //     throw error;
+  //   }
+
+  //   if (requestBody.author_id) {
+  //     const author = await authorService.getAuthorById(requestBody.author_id);
+  //     if (!author) {
+  //       const error = new Error('Author not found');
+  //       (error as any).status = 404;
+  //       throw error;
+  //     }
+  //   }
+
+  //   const updatedBook = await bookService.updateBook(id, requestBody);
+  //   return updatedBook;
+  // }
+
+  @Delete("{id}")
+  public async deleteBook(@Path() id: number): Promise<void> {
+
+    const hasCollections = await BookCollectionService.hasBookCollections(id);
+    
+    if (hasCollections) {
+      const error = new Error('Cannot delete book with active collections');
+      (error as any).status = 400; 
       throw error;
     }
-    return author
+
+    await bookService.deleteBook(id);
   }
+
 }
 
 

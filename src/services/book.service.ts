@@ -18,11 +18,37 @@ export class BookService {
 
   // Crée un nouvel book
   public async createBook(
-    title: string, publish_year: number, author_id: number, isbn: string, 
+    title: string, publish_year: number, author_id: number, isbn: string,
   ): Promise<Book> {
     return Book.create({ title: title, publish_year: publish_year, author_id: author_id, isbn: isbn });
   }
 
+  public async updateBook(
+    id: number,
+    updateData: Partial<Book>
+  ): Promise<Book | null> {
+    const book = await this.getBookById(id);
+
+    if (!book) {
+      return null;
+    }
+
+    await book.update(updateData);
+
+    return book;
+  }
+
+  public async deleteBook(id: number): Promise<void> {
+    const book = await Book.findByPk(id);
+    
+    if (!book) {
+      const error = new Error('Book not found');
+      (error as any).status = 404;
+      throw error;
+    }
+
+    await book.destroy(); 
+  }
 }
 
 
