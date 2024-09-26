@@ -38,6 +38,15 @@ export class BookService {
     return book;
   }
 
+  public static async hasBook(author_id: number): Promise<boolean> {
+    const collectionsCount = await Book.count({
+        where: { author_id: author_id }
+    });
+
+    return collectionsCount > 0;
+}
+
+
   public async deleteBook(id: number): Promise<void> {
     const book = await Book.findByPk(id);
     

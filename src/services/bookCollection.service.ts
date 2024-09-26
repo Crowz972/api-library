@@ -1,6 +1,6 @@
-import { BookCollection } from "../models/bookCollection.model"; // Modèle Sequelize pour BookCollection
-import { Book } from "../models/book.model"; // Modèle Sequelize pour Book
-import { BookCollectionDTO } from "../dto/bookCollection.dto"; // DTO pour la sortie
+import { BookCollection } from "../models/bookCollection.model"; 
+import { Book } from "../models/book.model"; 
+import { BookCollectionDTO } from "../dto/bookCollection.dto";
 
 export class BookCollectionService {
 
@@ -62,7 +62,7 @@ export class BookCollectionService {
             }
         }
 
-        await collection.update(data);
+        //await collection.update(data);
 
         return collection.toJSON() as BookCollectionDTO;
     }

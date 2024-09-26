@@ -77,6 +77,7 @@ export class BookController extends Controller {
       const error = new Error('Cannot delete book with active collections');
       (error as any).status = 400; 
       throw error;
+      
     }
 
     await bookService.deleteBook(id);

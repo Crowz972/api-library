@@ -2,6 +2,7 @@ import { Controller, Get, Post, Delete, Route, Path, Body, Tags, Patch } from "t
 import { authorService } from "../services/author.service";
 import { AuthorDTO } from "../dto/author.dto";
 import { Author } from "../models/author.model";
+import { BookService } from "../services/book.service";
 
 @Route("authors")
 @Tags("Authors")
@@ -37,6 +38,14 @@ export class AuthorController extends Controller {
   // Supprime un auteur par ID
   @Delete("{id}")
   public async deleteAuthor(@Path() id: number): Promise<void> {
+    const hasBooks = await BookService.hasBook(id)
+    
+    if (hasBooks) {
+      const error = new Error('Cannot delete author with active book');
+      (error as any).status = 400; 
+      throw error;
+    }
+    console.log(id)
     await authorService.deleteAuthor(id);
   }
 

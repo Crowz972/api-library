@@ -11,6 +11,8 @@ export class BookCollectionController extends Controller {
     return bookCollectionService.getAllBookCollections();
   }
 
+
+  
   @Get("{id}")
   public async getBookCollectionById(@Path() id: number): Promise<BookCollectionDTO | null> {
     return bookCollectionService.getBookCollectionById(id);
