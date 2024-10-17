@@ -24,10 +24,12 @@ export function expressAuthentication(
             reject(err);
           } else {
             if (scopes !== undefined) {
-              // Check if JWT contains all required scopes
+              const userScopes = decoded.scopes;
+
               for (let scope of scopes) {
-                if (!decoded.scopes.includes(scope)) {
-                  reject(new Error("JWT does not contain required scope."));
+                const [resource, action] = scope.split(":");
+                if (!userScopes[resource]?.includes(action)) {
+                  reject(new Error(`JWT does not contain required permission for ${scope}`));
                 }
               }
             }

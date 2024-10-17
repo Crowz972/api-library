@@ -7,8 +7,8 @@ const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret_key"; // Clé secr
 
 export class AuthenticationService {
   public async authenticate(
-    username: string,
-    password: string
+      username: string,
+      password: string
   ): Promise<string> {
     // Recherche l'utilisateur dans la base de données
     const user = await User.findOne({ where: { username } });
@@ -19,21 +19,49 @@ export class AuthenticationService {
 
     // Décoder le mot de passe stocké en base de données
     const decodedPassword = Buffer.from(user.password, "base64").toString(
-      "utf-8"
+        "utf-8"
     );
 
     // Vérifie si le mot de passe est correct
     if (password === decodedPassword) {
-      // Si l'utilisateur est authentifié, on génère un JWT
-      const token = jwt.sign({ username: user.username }, JWT_SECRET, {
-        expiresIn: "1h",
-      });
-      return token;
+      // Si l'utilisateur est authentifié, on génère un JWT avec des permissions basées sur le rôle
+      return this.generateJwt(user.username);
     } else {
       let error = new Error("Wrong password");
       (error as any).status = 403;
       throw error;
     }
+  }
+
+  private generateJwt(username: string): string {
+    let permissions: any = {};
+
+    if (username === 'admin') {
+      permissions = {
+        author: ['read', 'create', 'update', 'delete'],
+        book: ['read', 'create', 'update', 'delete'],
+        bookCollection: ['read', 'create', 'update', 'delete'],
+      };
+    } else if (username === 'gerant') {
+      permissions = {
+        author: ['read', 'create', 'update'],
+        book: ['read', 'create', 'update'],
+        bookCollection: ['read', 'create', 'update', 'delete'],
+      };
+    } else if (username === 'utilisateur') {
+      permissions = {
+        author: ['read'],
+        book: ['read', 'create'],
+        bookCollection: ['read'],
+      };
+    }
+
+    const payload = {
+      username: username,
+      scopes: permissions,
+    };
+    console.log(permissions)
+    return jwt.sign(payload, JWT_SECRET, { expiresIn: "1h" });
   }
 }
 
