@@ -1,11 +1,23 @@
-import { AuthorDTO } from "./author.dto";
+import { AuthorOutputDTO } from "./author.dto";
 
-export interface BookDTO {
-  id?: number;
+export interface BookInputDTO {
+  title: string;
+  publish_year: number;
+  author_id: number;
+  isbn: string;
+}
+
+export interface BookInputPatchDTO {
+  title?: string;
+  publish_year?: number;
+  author_id?: number;
+  isbn?: string;
+}
+
+export interface BookOutputDTO {
+  id: number;
   title: string;
   publish_year: number;
   isbn: string;
-  author_id: number;
-  author?: AuthorDTO;
+  author: AuthorOutputDTO;
 }
-

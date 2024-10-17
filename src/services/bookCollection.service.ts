@@ -1,91 +1,101 @@
-import { BookCollection } from "../models/bookCollection.model"; 
-import { Book } from "../models/book.model"; 
-import { BookCollectionDTO } from "../dto/bookCollection.dto";
+import {
+  BookCollectionOutputDTO,
+  getIntegerFromState,
+  State,
+} from "../dto/bookCollection.dto";
+import { notFound } from "../error/NotFoundError";
+import { BookCollectionMapper } from "../mapper/bookCollection.mapper";
+import { Author } from "../models/author.model";
+import { Book } from "../models/book.model";
+import { BookCollection } from "../models/bookCollection.model";
+import { ForeignKeyConstraintError } from "sequelize";
 
 export class BookCollectionService {
+  readonly includeBookAndAuthor = {
+    include: [
+      {
+        model: Book,
+        as: "book",
+        include: [
+          {
+            model: Author,
+            as: "author",
+          },
+        ],
+      },
+    ],
+  };
+  public async getAllBookCollections(): Promise<BookCollectionOutputDTO[]> {
+    let bookCollectionList = await BookCollection.findAll(
+      this.includeBookAndAuthor,
+    );
+    return BookCollectionMapper.toOutputDtoList(bookCollectionList);
+  }
 
-    public async getAllBookCollections(): Promise<BookCollectionDTO[]> {
-        const collections = await BookCollection.findAll({
-            include: [{ model: Book, as: "book" }]
-        });
-
-        return collections.map(collection => collection.toJSON() as unknown as BookCollectionDTO);
+  public async getBookCollectionById(
+    id: number,
+  ): Promise<BookCollectionOutputDTO> {
+    let bookCollection = await BookCollection.findByPk(
+      id,
+      this.includeBookAndAuthor,
+    );
+    if (bookCollection) {
+      return BookCollectionMapper.toOutputDto(bookCollection);
+    } else {
+      notFound("Book Collection");
     }
+  }
 
-    public async getBookCollectionById(id: number): Promise<BookCollectionDTO | null> {
-        const collection = await BookCollection.findByPk(id, {
-            include: [{ model: Book, as: "book" }]
-        });
-
-        if (!collection) return null;
-        return collection.toJSON() as unknown as BookCollectionDTO;
+  public async createBookCollection(
+    bookId: number,
+    available: number,
+    state: State,
+  ): Promise<BookCollectionOutputDTO> {
+    try {
+      let bookCollection = await BookCollection.create({
+        book_id: bookId,
+        available: available,
+        state: getIntegerFromState(state),
+      });
+      return BookCollectionMapper.toOutputDto(bookCollection);
+    } catch (err) {
+      if (err instanceof ForeignKeyConstraintError) throw notFound("Book");
+      throw err;
     }
+  }
 
-    public async createBookCollection(
-        data: BookCollectionDTO
-    ): Promise<BookCollectionDTO> {
-        const { book_id, available, state } = data;
-
-        const book = await Book.findByPk(book_id);
-        if (!book) {
-            const error = new Error('Book not found');
-            (error as any).status = 404;
-            throw error;
-        }
-
-        const newCollection = await BookCollection.create({
-            book_id,
-            available,
-            state
-        });
-
-        return newCollection.toJSON() as unknown as BookCollectionDTO;
+  public async updateBookCollection(
+    id: number,
+    bookId?: number,
+    available?: number,
+    state?: State,
+  ): Promise<BookCollectionOutputDTO> {
+    const bookCollection = await BookCollection.findByPk(id);
+    if (bookCollection) {
+      if (bookId !== undefined) bookCollection.book_id = bookId;
+      if (available !== undefined) bookCollection.available = available;
+      if (state !== undefined)
+        bookCollection.state = getIntegerFromState(state);
+      try {
+        await bookCollection.save();
+      } catch (err) {
+        if (err instanceof ForeignKeyConstraintError) throw notFound("Book");
+        throw err;
+      }
+      return BookCollectionMapper.toOutputDto(bookCollection);
+    } else {
+      notFound("Book Collection");
     }
+  }
 
-    public async updateBookCollection(
-        id: number,
-        data: Partial<BookCollectionDTO>
-    ): Promise<BookCollectionDTO | null> {
-        const collection = await BookCollection.findByPk(id);
-        if (!collection) {
-            const error = new Error('BookCollection not found');
-            (error as any).status = 404;
-            throw error;
-        }
-
-        if (data.book_id) {
-            const book = await Book.findByPk(data.book_id);
-            if (!book) {
-                const error = new Error('Book not found');
-                (error as any).status = 404;
-                throw error;
-            }
-        }
-
-        //await collection.update(data);
-
-        return collection.toJSON() as BookCollectionDTO;
+  public async deleteBookCollection(id: number): Promise<void> {
+    const bookCollection = await BookCollection.findByPk(id);
+    if (bookCollection) {
+      await bookCollection.destroy();
+    } else {
+      notFound("Book Collection");
     }
-
-    public static async hasBookCollections(bookId: number): Promise<boolean> {
-        const collectionsCount = await BookCollection.count({
-            where: { book_id: bookId }
-        });
-
-        return collectionsCount > 0;
-    }
-
-    public async deleteBookCollection(id: number): Promise<void> {
-        const collection = await BookCollection.findByPk(id);
-
-        if (!collection) {
-            const error = new Error('BookCollection not found');
-            (error as any).status = 404;
-            throw error;
-        }
-
-        await collection.destroy(); 
-    }
+  }
 }
 
 export const bookCollectionService = new BookCollectionService();

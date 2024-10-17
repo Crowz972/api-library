@@ -31,23 +31,23 @@ Permet d'être lancé sans compilation et de relancer dynamiquement l'applicatio
 
 ## Exercice
 
-1) Identifier et corriger l'erreur de la route POST authors X
-2) Renvoyer une erreur personnalisée avec un code 404 si l'auteur n'est pas trouvée lors des routes PATCH et GET/{id} X
+1) Identifier et corriger l'erreur de la route POST authors
+2) Renvoyer une erreur personnalisée avec un code 404 si l'auteur n'est pas trouvée lors des routes PATCH et GET/{id}
 3) 
-    1) Développer la route GET /books  X
-    2) Développer la route GET /books/{id} X 
-    3) Développer la route POST /books  X
-    4) Développer la route PATCH /books/{id}  
+    1) Développer la route GET /books
+    2) Développer la route GET /books/{id}
+    3) Développer la route POST /books
+    4) Développer la route PATCH /books/{id}
 4) 
-    1) Développer le modèle BookCollection X
-    2) Développer le DTO BookCollection X
-    3) Développer la route GET /books-collection x
-    4) Développer la route GET /books-collection/{id} x
-    5) Développer la route POST /books-collection x
-    6) Développer la route PATCH /books-collection/{id} 
-5)  
-    1) Mettre à jour la route DELETE /authors/{id} afin d'empêcher la suppression si un exemplaire d'un de ses livres est présent dans la bibliothèques X
-    2) Développer la route DELETE /books/{id} en empêchant la suppression du livre si un exemplaire est présent dans la bibliothèque X
-    3) Développer la route DELETE /books-collections/{id} X
-6) Renvoyer la liste des livres de l'auteur sur la route GET /authors/{id}/books 
+    1) Développer le modèle BookCollection
+    2) Développer le DTO BookCollection
+    3) Développer la route GET /books-collection
+    4) Développer la route GET /books-collection/{id}
+    5) Développer la route POST /books-collection
+    6) Développer la route PATCH /books-collection/{id}
+5) 
+    1) Mettre à jour la route DELETE /authors/{id} afin d'empêcher la suppression si un exemplaire d'un de ses livres est présent dans la bibliothèques
+    2) Développer la route DELETE /books/{id} en empêchant la suppression du livre si un exemplaire est présent dans la bibliothèque
+    3) Développer la route DELETE /books-collections/{id}
+6) Renvoyer la liste des livres de l'auteur sur la route GET /authors/{id}/books
 7) Renvoyer la liste des exemplaires du livre sur la route GET /books/{id}/books-collections

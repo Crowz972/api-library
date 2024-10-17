@@ -1,88 +1,70 @@
-import { Controller, Get, Post, Delete, Route, Path, Body, Tags, Patch } from "tsoa";
-import { BookDTO } from "../dto/book.dto";
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Patch,
+  Path,
+  Post,
+  Route,
+  Tags,
+} from "tsoa";
+import {
+  BookInputDTO,
+  BookInputPatchDTO,
+  BookOutputDTO,
+} from "../dto/book.dto";
 import { bookService } from "../services/book.service";
-import { AuthorDTO } from "../dto/author.dto";
-import { authorService } from "../services/author.service";
-import { BookCollectionService } from "../services/bookCollection.service";
+import { BookCollectionOutputDTO } from "../dto/bookCollection.dto";
 
 @Route("books")
 @Tags("Books")
 export class BookController extends Controller {
   @Get("/")
-  public async getAllBooks(): Promise<BookDTO[]> {
+  public async getAllBooks(): Promise<BookOutputDTO[]> {
     return bookService.getAllBooks();
   }
 
-  // Récupère un auteur par ID
   @Get("{id}")
-  public async getBooksById(@Path() id: number): Promise<BookDTO | null> {
-    const book = await bookService.getBookById(id);
-
-    if (!book) {
-      const error = new Error('Book not found');
-      (error as any).status = 404;
-      throw error;
-    }
-    return book;
+  public async getBook(@Path("id") id: number): Promise<BookOutputDTO> {
+    return await bookService.getBookById(id);
   }
 
-  // Crée un nouvel auteur
   @Post("/")
-  public async createBook(
-    @Body() requestBody: BookDTO
-  ): Promise<BookDTO> {
-    const { title, publish_year, isbn, author_id } = requestBody;
-    const author = await authorService.getAuthorById(author_id);
-    if (!author) {
-      const error = new Error('Author not found');
-      (error as any).status = 404;
-      throw error;
-    }
-    return bookService.createBook(title, publish_year, author_id, isbn);
+  public async postBooks(
+    @Body() requestBody: BookInputDTO,
+  ): Promise<BookOutputDTO> {
+    return bookService.createBook(
+      requestBody.title,
+      requestBody.publish_year,
+      requestBody.author_id,
+      requestBody.isbn,
+    );
   }
 
-  // // Met à jour un livre par ID
-  // @Patch("{id}")
-  // public async updateBook(
-  //   @Path() id: number,
-  //   @Body() requestBody: BookDTO
-  // ): Promise<BookDTO | null> {
-  //   const existingBook = await bookService.getBookById(id);
-
-  //   if (!existingBook) {
-  //     const error = new Error('Book not found');
-  //     (error as any).status = 404;
-  //     throw error;
-  //   }
-
-  //   if (requestBody.author_id) {
-  //     const author = await authorService.getAuthorById(requestBody.author_id);
-  //     if (!author) {
-  //       const error = new Error('Author not found');
-  //       (error as any).status = 404;
-  //       throw error;
-  //     }
-  //   }
-
-  //   const updatedBook = await bookService.updateBook(id, requestBody);
-  //   return updatedBook;
-  // }
+  @Patch("{id}")
+  public async patchBook(
+    @Path("id") id: number,
+    @Body() requestBody: BookInputPatchDTO,
+  ): Promise<BookOutputDTO> {
+    return bookService.updateBook(
+      id,
+      requestBody.title,
+      requestBody.publish_year,
+      requestBody.author_id,
+      requestBody.isbn,
+    );
+  }
 
   @Delete("{id}")
-  public async deleteBook(@Path() id: number): Promise<void> {
-
-    const hasCollections = await BookCollectionService.hasBookCollections(id);
-    
-    if (hasCollections) {
-      const error = new Error('Cannot delete book with active collections');
-      (error as any).status = 400; 
-      throw error;
-      
-    }
-
+  public async deleteBook(@Path("id") id: number): Promise<void> {
     await bookService.deleteBook(id);
   }
 
+  @Get("{id}/book-collections")
+  public async getBookCollectionsByBookId(
+    @Path() id: number,
+  ): Promise<BookCollectionOutputDTO[]> {
+    return bookService.getBookCollectionsByBookId(id);
+  }
 }
-
-

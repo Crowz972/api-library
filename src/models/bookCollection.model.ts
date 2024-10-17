@@ -1,16 +1,19 @@
 import { DataTypes, Model } from "sequelize";
-import sequelize from "../config/database"; 
+import sequelize from "../config/database"; // Connexion à la base de données
 import { Book } from "./book.model";
 
 export interface BookCollectionAttributes {
   id?: number;
-  book_id?: number;
+  book_id: number;
   available: number;
   state: number;
-  book?:Book;
+  book?: Book;
 }
 
-export class BookCollection extends Model<BookCollectionAttributes> implements BookCollectionAttributes {
+export class BookCollection
+  extends Model<BookCollectionAttributes>
+  implements BookCollectionAttributes
+{
   public id!: number;
   public book_id!: number;
   public available!: number;
@@ -41,7 +44,12 @@ BookCollection.init(
   {
     sequelize,
     tableName: "BookCollection",
-  }
+  },
 );
 
 BookCollection.belongsTo(Book, { foreignKey: "book_id", as: "book" });
+Book.hasMany(BookCollection, {
+  foreignKey: "book_id",
+  as: "collections",
+  sourceKey: "id",
+});

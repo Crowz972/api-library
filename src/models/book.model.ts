@@ -1,14 +1,16 @@
 import { Model, DataTypes } from "sequelize";
 import sequelize from "../config/database"; // Connection à la base de données
 import { Author } from "./author.model";
+import { BookCollection } from "./bookCollection.model";
 
 export interface BookAttributes {
   id?: number;
   title: string;
   publish_year: number;
-  author_id?: number;
+  author_id: number;
   isbn: string;
   author?: Author;
+  collections?: BookCollection[];
 }
 
 export class Book extends Model<BookAttributes> implements BookAttributes {
@@ -18,6 +20,7 @@ export class Book extends Model<BookAttributes> implements BookAttributes {
   public author_id!: number;
   public isbn!: string;
   public author!: Author;
+  public collections!: BookCollection[];
 }
 
 Book.init(
@@ -48,7 +51,8 @@ Book.init(
   {
     sequelize,
     tableName: "Book",
-  }
+  },
 );
 
 Book.belongsTo(Author, { foreignKey: "author_id", as: "author" });
+Author.hasMany(Book, { sourceKey: "id", foreignKey: "author_id", as: "books" });
